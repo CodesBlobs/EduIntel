@@ -76,3 +76,4 @@ export interface VariantHeroProps {
   }
   onOpenReport: () => void
 }
+

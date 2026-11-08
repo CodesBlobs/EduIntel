@@ -26,6 +26,11 @@ import { DbStatusBadge } from '@/components/DbStatusBadge'
 import { TopAnnouncementBar } from '@/components/TopAnnouncementBar'
 import { StyleSwitcherBar } from '@/components/variants/StyleSwitcherBar'
 import { LandingStyleKey } from '@/components/variants/types'
+import { DuolingoFullApp } from '@/components/variants/full/DuolingoFullApp'
+import { NotionFullApp } from '@/components/variants/full/NotionFullApp'
+import { MondayFullApp } from '@/components/variants/full/MondayFullApp'
+import { LinearFullApp } from '@/components/variants/full/LinearFullApp'
+import { MathspaceFullApp } from '@/components/variants/full/MathspaceFullApp'
 import { trackPageView, trackEvent } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
@@ -331,9 +336,6 @@ function HandwritingLabWorkspace() {
         </AnimatePresence>
       </main>
 
-      {/* PRINTABLE CLINICAL REPORT MODAL */}
-      <ReportModal />
-
       {/* REFINED NOTION/FIGMA-STYLE FOOTER */}
       <footer className="bg-[#F4F3EF] text-[#575653] text-xs border-t border-[#E6E4DD] mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -434,8 +436,64 @@ function HandwritingLabWorkspace() {
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
 
-      {/* FLOATING DESIGN STYLE SWITCHER BAR (Duolingo, Notion, Monday, Linear, Mathspace, Classic) */}
+function MasterWorkspaceRouter() {
+  const { landingStyle, setLandingStyle } = useLabStore()
+
+  const handleSelectStyle = (style: LandingStyleKey) => {
+    setLandingStyle(style)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      if (style !== 'classic') {
+        url.searchParams.set('landing', style)
+      } else {
+        url.searchParams.delete('landing')
+        url.searchParams.delete('style')
+      }
+      window.history.replaceState({}, '', url.toString())
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const renderStyleContent = () => {
+    switch (landingStyle) {
+      case 'duolingo':
+        return <DuolingoFullApp />
+      case 'notion':
+        return <NotionFullApp />
+      case 'monday':
+        return <MondayFullApp />
+      case 'linear':
+        return <LinearFullApp />
+      case 'mathspace':
+        return <MathspaceFullApp />
+      case 'classic':
+      default:
+        return <HandwritingLabWorkspace />
+    }
+  }
+
+  return (
+    <div className="relative">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={landingStyle}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        >
+          {renderStyleContent()}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Global Printable Diagnostic Report Modal */}
+      <ReportModal />
+
+      {/* Floating Design Style Switcher Bar */}
       <StyleSwitcherBar currentStyle={landingStyle} onSelectStyle={handleSelectStyle} />
     </div>
   )
@@ -445,7 +503,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BackendSyncProvider>
-        <HandwritingLabWorkspace />
+        <MasterWorkspaceRouter />
       </BackendSyncProvider>
     </QueryClientProvider>
   )

@@ -183,3 +183,4 @@ export const MondayVariant: React.FC<VariantHeroProps> = ({
     </div>
   )
 }
+

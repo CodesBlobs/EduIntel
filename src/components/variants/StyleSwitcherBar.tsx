@@ -60,3 +60,4 @@ export const StyleSwitcherBar: React.FC<StyleSwitcherBarProps> = ({
     </aside>
   )
 }
+

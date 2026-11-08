@@ -118,3 +118,4 @@ export function trackAuditProgress(passedCount: number, total: number = 10): voi
     pass_rate_pct: Math.round((passedCount / total) * 100),
   })
 }
+

@@ -146,3 +146,4 @@ export const MathspaceVariant: React.FC<VariantHeroProps> = ({
     </div>
   )
 }
+

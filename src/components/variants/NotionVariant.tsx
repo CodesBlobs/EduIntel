@@ -171,3 +171,4 @@ export const NotionVariant: React.FC<VariantHeroProps> = ({
     </div>
   )
 }
+

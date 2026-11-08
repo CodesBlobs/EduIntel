@@ -195,3 +195,4 @@ export const DuolingoVariant: React.FC<VariantHeroProps> = ({
     </div>
   )
 }
+

@@ -115,3 +115,4 @@ export const LinearVariant: React.FC<VariantHeroProps> = ({
     </div>
   )
 }
+

@@ -1,0 +1,10 @@
+{
+  "description": "A smooth, modern web app that helps users organize information and work efficiently with a clean, intuitive experience inspired by Notion and Figma.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -24,6 +24,8 @@ import { BackendSyncProvider } from '@/components/BackendSyncProvider'
 import { StudentSwitcher } from '@/components/StudentSwitcher'
 import { DbStatusBadge } from '@/components/DbStatusBadge'
 import { TopAnnouncementBar } from '@/components/TopAnnouncementBar'
+import { StyleSwitcherBar } from '@/components/variants/StyleSwitcherBar'
+import { LandingStyleKey } from '@/components/variants/types'
 import { trackPageView, trackEvent } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
@@ -75,7 +77,23 @@ function HandwritingLabWorkspace() {
     setActiveTab,
     auditCheckedMap,
     setReportModalOpen,
+    landingStyle,
+    setLandingStyle,
   } = useLabStore()
+
+  const handleSelectStyle = (style: LandingStyleKey) => {
+    setLandingStyle(style)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      if (style !== 'classic') {
+        url.searchParams.set('landing', style)
+      } else {
+        url.searchParams.delete('landing')
+        url.searchParams.delete('style')
+      }
+      window.history.replaceState({}, '', url.toString())
+    }
+  }
 
   const passedAuditCount = INITIAL_AUDIT_ITEMS.filter(
     (i) => auditCheckedMap[i.id]
@@ -88,7 +106,20 @@ function HandwritingLabWorkspace() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBFBFA] text-[#191918] selection:bg-stone-200 selection:text-[#191918]">
+    <div
+      className={cn(
+        'min-h-screen flex flex-col selection:bg-stone-200 transition-colors duration-200',
+        landingStyle === 'linear'
+          ? 'bg-[#090A0C] text-zinc-100'
+          : landingStyle === 'mathspace'
+            ? 'bg-[#F8FAFC] text-slate-900'
+            : landingStyle === 'monday'
+              ? 'bg-[#F7F9FC] text-stone-900'
+              : landingStyle === 'duolingo'
+                ? 'bg-[#F7FCF2] text-stone-900'
+                : 'bg-[#FBFBFA] text-[#191918]'
+      )}
+    >
       {/* 1. TOP ANNOUNCEMENT / NEWS BAR (plan.md Section 2) */}
       <TopAnnouncementBar />
 
@@ -403,6 +434,9 @@ function HandwritingLabWorkspace() {
           </div>
         </div>
       </footer>
+
+      {/* FLOATING DESIGN STYLE SWITCHER BAR (Duolingo, Notion, Monday, Linear, Mathspace, Classic) */}
+      <StyleSwitcherBar currentStyle={landingStyle} onSelectStyle={handleSelectStyle} />
     </div>
   )
 }

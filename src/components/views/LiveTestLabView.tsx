@@ -45,6 +45,11 @@ import { useAttempts, useCreateAttempt, useDeleteAttempt } from '@/hooks/useBack
 import { Badge, Button, Card, Input, Select } from '@/components/ui/primitives'
 import { RichNotesEditor } from '@/components/RichNotesEditor'
 import { HeroImmediateAssessment } from '@/components/HeroImmediateAssessment'
+import { DuolingoVariant } from '@/components/variants/DuolingoVariant'
+import { NotionVariant } from '@/components/variants/NotionVariant'
+import { MondayVariant } from '@/components/variants/MondayVariant'
+import { LinearVariant } from '@/components/variants/LinearVariant'
+import { MathspaceVariant } from '@/components/variants/MathspaceVariant'
 import { trackTestStarted, trackTestCompleted } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
@@ -79,6 +84,7 @@ export const LiveTestLabView: React.FC = () => {
     updateLatestEval,
     setActiveTab,
     setReportModalOpen,
+    landingStyle,
   } = useLabStore()
 
   // Real backend queries via React Query
@@ -309,26 +315,42 @@ export const LiveTestLabView: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Action-Oriented Immediate Assessment Hero (plan.md Section 4 & 6) */}
-      <HeroImmediateAssessment
-        selectedCohort={selectedCohort}
-        onSelectCohort={setSelectedCohort}
-        activeSetKey={activeSetKey}
-        onSelectTestSet={handleSelectTestSet}
-        onStartAssessment={handleStartFromHero}
-        savedAttemptsCount={savedAttempts.length}
-        latestAttempt={
-          savedAttempts[0]
+      {/* Dynamic Landing-Page Style Variant (Duolingo, Notion, Monday.com, Linear, Mathspace, or Classic) */}
+      {(() => {
+        const heroProps = {
+          selectedCohort,
+          onSelectCohort: setSelectedCohort,
+          activeSetKey,
+          onSelectTestSet: handleSelectTestSet,
+          onStartAssessment: handleStartFromHero,
+          savedAttemptsCount: savedAttempts.length,
+          latestAttempt: savedAttempts[0]
             ? {
                 studentLabel: savedAttempts[0].studentLabel,
                 netLpm: savedAttempts[0].netLpm,
                 netWpm: savedAttempts[0].netWpm,
                 status: savedAttempts[0].status,
               }
-            : undefined
+            : undefined,
+          onOpenReport: () => setReportModalOpen(true),
         }
-        onOpenReport={() => setReportModalOpen(true)}
-      />
+
+        switch (landingStyle) {
+          case 'duolingo':
+            return <DuolingoVariant {...heroProps} />
+          case 'notion':
+            return <NotionVariant {...heroProps} />
+          case 'monday':
+            return <MondayVariant {...heroProps} />
+          case 'linear':
+            return <LinearVariant {...heroProps} />
+          case 'mathspace':
+            return <MathspaceVariant {...heroProps} />
+          case 'classic':
+          default:
+            return <HeroImmediateAssessment {...heroProps} />
+        }
+      })()}
 
       {/* INTERACTIVE TEST BENCH: LEFT 7 COLS (TEST WORKSPACE) & RIGHT 5 COLS (EVALUATOR) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">

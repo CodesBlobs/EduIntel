@@ -7,6 +7,19 @@ import {
   SymptomKey,
   TestSetKey,
 } from '@/data/handwritingData'
+import { LandingStyleKey } from '@/components/variants/types'
+
+export function getInitialLandingStyle(): LandingStyleKey {
+  if (typeof window === 'undefined') return 'classic'
+  const p = new URLSearchParams(window.location.search)
+  const val = (p.get('landing') || p.get('style') || '').toLowerCase().trim()
+  if (val === 'duolingo' || val === 'doulinogo' || val === 'gamified') return 'duolingo'
+  if (val === 'notion' || val === 'doc' || val === 'document' || val === 'doc-first') return 'notion'
+  if (val === 'monday' || val === 'monday.com' || val === 'work-os') return 'monday'
+  if (val === 'linear' || val === 'dark-product') return 'linear'
+  if (val === 'mathspace' || val === 'edtech' || val === 'clean-edtech') return 'mathspace'
+  return 'classic'
+}
 
 export type LabTabId =
   | 'view-test-lab'
@@ -37,8 +50,9 @@ interface LabState {
   // ── Active Student ──
   activeStudentId: string
 
-  // ── UI Navigation ──
+  // ── UI Navigation & Style Variant ──
   activeTab: LabTabId
+  landingStyle: LandingStyleKey
 
   // ── Test Lab Config (synced with backend preferences) ──
   selectedCohort: CohortKey
@@ -79,6 +93,7 @@ interface LabState {
   // ── Actions ──
   setActiveStudentId: (id: string) => void
   setActiveTab: (tab: LabTabId) => void
+  setLandingStyle: (style: LandingStyleKey) => void
   setSelectedCohort: (cohort: CohortKey) => void
   setActiveSetKey: (setKey: TestSetKey) => void
   toggleAuditItem: (id: string) => void
@@ -104,6 +119,7 @@ export const useLabStore = create<LabState>()(
   (set) => ({
     activeStudentId: localStorage.getItem('hw-active-student-id') || 'default-student',
     activeTab: 'view-test-lab',
+    landingStyle: getInitialLandingStyle(),
     selectedCohort: 'year5',
     activeSetKey: 'setA',
     auditCheckedMap: defaultAuditMap,
@@ -134,6 +150,7 @@ export const useLabStore = create<LabState>()(
       set({ activeStudentId: id })
     },
     setActiveTab: (activeTab) => set({ activeTab }),
+    setLandingStyle: (landingStyle) => set({ landingStyle }),
     setSelectedCohort: (selectedCohort) => set({ selectedCohort }),
     setActiveSetKey: (activeSetKey) => set({ activeSetKey }),
     toggleAuditItem: (id) =>

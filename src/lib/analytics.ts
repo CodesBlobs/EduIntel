@@ -13,7 +13,7 @@ declare global {
 }
 
 const DEFAULT_MEASUREMENT_ID =
-  (import.meta.env.VITE_GA_MEASUREMENT_ID as string) || 'G-XXXXXXXXXX'
+  (import.meta.env.VITE_GA_MEASUREMENT_ID as string) || 'G-PX1JZYCDS7'
 
 let isInitialized = false
 
@@ -23,29 +23,34 @@ let isInitialized = false
 export function initGA(measurementId: string = DEFAULT_MEASUREMENT_ID): void {
   if (typeof window === 'undefined' || isInitialized) return
   if (!measurementId || measurementId === 'G-XXXXXXXXXX') {
-    // If placeholder or not provided, still initialize dummy gtag to prevent errors
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       window.dataLayer?.push(arguments)
     }
-    console.info('[Analytics] Google Analytics initialized in dev/standby mode (Set VITE_GA_MEASUREMENT_ID to activate live tracking).')
     isInitialized = true
     return
   }
 
-  // Inject gtag.js script tag
-  const script = document.createElement('script')
-  script.async = true
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
-  document.head.appendChild(script)
-
-  // Configure dataLayer & gtag
+  // Ensure dataLayer & gtag exist
   window.dataLayer = window.dataLayer || []
-  window.gtag = function () {
-    window.dataLayer?.push(arguments)
+  if (typeof window.gtag !== 'function') {
+    window.gtag = function () {
+      window.dataLayer?.push(arguments)
+    }
+    window.gtag('js', new Date())
   }
 
-  window.gtag('js', new Date())
+  // Inject gtag.js script tag if not already loaded in <head>
+  const existingScript = document.querySelector(
+    'script[src*="googletagmanager.com/gtag/js"]',
+  )
+  if (!existingScript) {
+    const script = document.createElement('script')
+    script.async = true
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
+    document.head.appendChild(script)
+  }
+
   window.gtag('config', measurementId, {
     send_page_view: true,
   })
